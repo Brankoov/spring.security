@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+</head>
+<body>
+
+<h1> Register User </h1>
+<p>DEBUGGING:</p>
+<p th:object="${customUser}" th:text="${customUser}"></p>
+<form th:action="@{/user/register}" th:object="${customUser}" method="post">
+    <label>
+        Username
+        <input type="text" name="username" th:field="*{username}">
+    </label>
+    <label>
+        Password
+        <input type="password" name="password" th:field="*{password}">
+    </label>
+    <button type="submit">Register</button>
+    <div th:if="${#fields.hasAnyErrors()}">
+        <ul>
+            <li th:each="error : ${#fields.allErrors()}" th:text="${error}">
+            </li>
+        </ul>
+    </div>
+
+</form>
+
+
+</body>
+</html>
