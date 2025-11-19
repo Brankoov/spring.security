@@ -44,7 +44,7 @@ public class AppSecurityConfig {
                 .csrf(csrfConfigurer -> csrfConfigurer.disable())   // TODO - JWT, best practice?
                 .authorizeHttpRequests( auth -> auth
                         // .requestMatchers() // TODO - check against specific HTTP METHOD
-                        .requestMatchers("/", "/register", "/static/**", "/login").permitAll()  // Allow localhost:8080/
+                        .requestMatchers("/", "/register", "/login").permitAll()  // Allow localhost:8080/
                         .requestMatchers("/debug/**").permitAll()                     // RestController for Debugging
                         .requestMatchers("/admin", "/tools").hasRole("ADMIN")
                         .requestMatchers("/user").hasRole(UserRole.USER.name())

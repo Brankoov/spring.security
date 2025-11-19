@@ -44,6 +44,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         logger.debug("---- JwtAuthenticationFilter START ----");
 
+        String path = request.getServletPath();
+        if (path.equals("/register") || path.equals("/login")) {
+            logger.debug("Skipping JWT filter for public endpoint: {}", path);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // Extract token
         String token = jwtUtils.extractJwtFromCookie(request);
         if (token == null) {

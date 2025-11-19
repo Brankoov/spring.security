@@ -1,7 +1,6 @@
 package se.brankoov.spring.security.user.dto;
 
 import se.brankoov.spring.security.user.authority.UserRole;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 import java.util.Set;
@@ -28,13 +27,8 @@ public record CustomUserCreationDTO(
         @NotNull boolean isAccountNonLocked,
         @NotNull boolean isCredentialsNonExpired,
         @NotNull boolean isEnabled,
-        // @NotNull @AssertTrue boolean acceptAppTerms, // Expect the result NOT to be null, NOT to be False
 
-        @NotEmpty // Map, Collections, Array
-        @Pattern(
-                regexp = "^(GUEST|USER|ADMIN)$",        // TODO - Util function, loops through each ENUM: secure type-safety
-                message = "Must be a Valid Role"
-        )
+        // Klienten behöver inte skicka roller – vi sätter USER i controllern
         Set<UserRole> roles
 
 ) {

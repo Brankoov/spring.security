@@ -3,10 +3,10 @@ package se.brankoov.spring.security.user;
 
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import se.brankoov.spring.security.user.authority.UserRole;
 import jakarta.persistence.*;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -89,8 +89,8 @@ public class CustomUser {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPassword(String password, PasswordEncoder passwordEncoder) {
+        this.password = passwordEncoder.encode(password);
     }
 
     public boolean isAccountNonExpired() {

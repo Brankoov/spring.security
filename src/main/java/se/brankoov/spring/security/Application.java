@@ -1,4 +1,5 @@
 package se.brankoov.spring.security;
+import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import se.brankoov.spring.security.user.CustomUser;
 import se.brankoov.spring.security.user.CustomUserDetails;
 import se.brankoov.spring.security.user.authority.UserRole;
@@ -7,7 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.Set;
-
+@EnableRabbit
 @SpringBootApplication
 public class Application {
 

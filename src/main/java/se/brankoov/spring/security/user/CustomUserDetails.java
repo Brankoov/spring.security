@@ -4,6 +4,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -20,7 +21,7 @@ import java.util.Set;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final CustomUser customUser;
+    private final CustomUser customUser; // Entity
 
     public CustomUserDetails(CustomUser customUser) {
         this.customUser = customUser;
@@ -72,5 +73,9 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return customUser.isEnabled();
+    }
+
+    public CustomUser getCustomUser() {
+        return customUser;
     }
 }

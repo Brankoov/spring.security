@@ -30,7 +30,7 @@ public class AppPasswordConfig {
          *   NOTE: Can lead to potential Bottleneck (Performance Issues)
          * */
 
-        return new BCryptPasswordEncoder(12); // Default Strength 10 (Iterations)
+        return new BCryptPasswordEncoder(10); // Default Strength 10 (Iterations)
     }
 
 }

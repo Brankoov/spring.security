@@ -117,7 +117,7 @@ public class JwtUtils {
     String extractJwtFromCookie(HttpServletRequest request) {
         if (request.getCookies() == null) return null;
         for (Cookie cookie : request.getCookies()) {
-            if ("authToken".equals(cookie.getName())) {     // Cookie should be named authToken
+            if ("jwt".equals(cookie.getName())) {     // Cookie should be named authToken
                 return cookie.getValue();
             }
         }

@@ -1,5 +1,6 @@
 package se.brankoov.spring.security.security;
 
+import se.brankoov.spring.security.config.RabbitConfig;
 import se.brankoov.spring.security.security.jwt.JwtUtils;
 import se.brankoov.spring.security.user.CustomUserDetails;
 import se.brankoov.spring.security.user.dto.CustomUserLoginDTO;
@@ -7,6 +8,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,7 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
@@ -25,11 +26,13 @@ public class AuthenticationRestController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
+    private final AmqpTemplate amqpTemplate;
 
     @Autowired
-    public AuthenticationRestController(JwtUtils jwtUtils, AuthenticationManager authenticationManager) {
+    public AuthenticationRestController(JwtUtils jwtUtils, AuthenticationManager authenticationManager, AmqpTemplate amqpTemplate) {
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
+        this.amqpTemplate = amqpTemplate;
     }
 
     // TODO - Test against permissions
@@ -78,14 +81,22 @@ public class AuthenticationRestController {
         String token = jwtUtils.generateJwtToken(customUserDetails.getCustomUser());
 
         // Step 4: Set cookie
-        Cookie cookie = new Cookie("authToken", token);
+        Cookie cookie = new Cookie("jwt", token);
         cookie.setHttpOnly(true);
-        cookie.setSecure(false); // ✅ change to true in production (HTTPS only)
+        cookie.setSecure(true); // ✅ change to true in production (HTTPS only)
+        cookie.setAttribute("SameSite", "None"); // CSRF protection
         cookie.setPath("/");
         cookie.setMaxAge(3600); // 1 hour
         response.addCookie(cookie);
 
         logger.info("Authentication successful for user: {}", customUserLoginDTO.username());
+
+        // RabbitMQ
+        amqpTemplate.convertAndSend(
+                RabbitConfig.EXCHANGE_NAME,
+                RabbitConfig.ROUTING_KEY,
+                "User Logged in, todo: send email to user to alert them of login from weird IP addresses"
+        );
 
         // Step 5: Return token - Optional
         return ResponseEntity.ok(Map.of(
