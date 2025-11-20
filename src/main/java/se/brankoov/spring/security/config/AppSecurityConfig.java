@@ -47,7 +47,7 @@ public class AppSecurityConfig {
                         .requestMatchers("/", "/register", "/login").permitAll()  // Allow localhost:8080/
                         .requestMatchers("/debug/**").permitAll()                     // RestController for Debugging
                         .requestMatchers("/admin", "/tools").hasRole("ADMIN")
-                        .requestMatchers("/user").hasRole(UserRole.USER.name())
+                        .requestMatchers("/user").hasAnyRole(UserRole.USER.name(), UserRole.ADMIN.name())
                         .anyRequest().authenticated() // MUST exist AFTER matchers, TODO - Is this true by DEFAULT?
                 )
 

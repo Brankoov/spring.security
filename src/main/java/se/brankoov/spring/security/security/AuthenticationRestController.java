@@ -105,4 +105,24 @@ public class AuthenticationRestController {
                 "token", token
         ));
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+
+        // Töm JWT-cookien genom att skriva över den
+        Cookie cookie = new Cookie("jwt", "");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);        // samma som i login
+        cookie.setAttribute("SameSite", "None");
+        cookie.setPath("/");
+        cookie.setMaxAge(0);           // 0 = ta bort direkt
+        response.addCookie(cookie);
+
+        logger.info("User logged out (JWT cookie cleared)");
+
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Logged out"
+        ));
+    }
 }
