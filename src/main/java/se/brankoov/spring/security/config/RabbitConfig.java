@@ -1,9 +1,8 @@
 package se.brankoov.spring.security.config;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.*;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -27,9 +26,14 @@ public class RabbitConfig {
     @Bean
     public Binding emailBinding(Queue emailQueue, DirectExchange emailExchange) {
         return BindingBuilder
-                .bind(emailQueue)   // Which queue gets messages
-                .to(emailExchange)  // From which exchange
-                .with(ROUTING_KEY); // Under what condition
+                .bind(emailQueue)
+                .to(emailExchange)
+                .with(ROUTING_KEY);
     }
 
+    // NYTT: Gör att vi kan skicka Java-objekt som JSON automatiskt
+    @Bean
+    public MessageConverter jsonMessageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
 }

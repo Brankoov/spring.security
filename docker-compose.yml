@@ -1,0 +1,39 @@
+services:
+  # --- DIN JAVA APP ---
+  app:
+    build: .                          # Bygg Dockerfile som ligger i samma mapp
+    container_name: security-backend
+    ports:
+      - "8080:8080"                   # Öppna port 8080 utåt så frontend kan nå den
+    depends_on:
+      - postgres
+      - rabbitmq
+    environment:
+      # Här skriver vi över inställningarna från application.properties!
+      # Vi pekar på container-namnen (postgres, rabbitmq) istället för localhost
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/spring-security-db
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: qwerty123
+
+  # --- DATABAS ---
+  postgres:
+    image: postgres:15-alpine
+    container_name: security-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: qwerty123
+      POSTGRES_DB: spring-security-db
+    ports:
+      - "5432:5432"
+
+  # --- RABBITMQ ---
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: security-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest

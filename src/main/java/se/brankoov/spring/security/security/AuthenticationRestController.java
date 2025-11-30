@@ -1,6 +1,7 @@
 package se.brankoov.spring.security.security;
 
 import se.brankoov.spring.security.config.RabbitConfig;
+import se.brankoov.spring.security.consumer.dto.EmailRequestDTO;
 import se.brankoov.spring.security.security.jwt.JwtUtils;
 import se.brankoov.spring.security.user.CustomUserDetails;
 import se.brankoov.spring.security.user.dto.CustomUserLoginDTO;
@@ -91,11 +92,16 @@ public class AuthenticationRestController {
 
         logger.info("Authentication successful for user: {}", customUserLoginDTO.username());
 
-        // RabbitMQ
+        EmailRequestDTO emailRequest = new EmailRequestDTO(
+                customUserLoginDTO.username(), // Vi låtsas att username är en email här
+                "Login Alert",
+                "Hej! Vi upptäckte en inloggning på ditt konto."
+        );
+
         amqpTemplate.convertAndSend(
                 RabbitConfig.EXCHANGE_NAME,
                 RabbitConfig.ROUTING_KEY,
-                "User Logged in, todo: send email to user to alert them of login from weird IP addresses"
+                emailRequest // Skickar DTO:n istället för sträng
         );
 
         // Step 5: Return token - Optional
