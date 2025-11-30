@@ -94,8 +94,8 @@ public class DebugRestController {
         try {
             customUserRepository.save(
                     new CustomUser(
-                            "Branko",
-                            passwordEncoder.encode("Admin123"),
+                            "Admin",
+                            passwordEncoder.encode("Admin123!"),
                             true,
                             true,
                             true,
