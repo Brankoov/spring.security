@@ -3,6 +3,7 @@ package se.brankoov.spring.security.user;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,5 +15,6 @@ public interface CustomUserRepository extends JpaRepository<CustomUser, UUID> {
 
     boolean existsByUsername(String username);
 
-
+    // Hitta alla användare där användarnamnet innehåller söktexten (IgnoreCase = stora/små bokstäver spelar ingen roll)
+    List<CustomUser> findByUsernameContainingIgnoreCase(String username);
 }

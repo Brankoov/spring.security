@@ -1,7 +1,7 @@
 package se.brankoov.spring.security.user;
 
-
 import jakarta.validation.Valid;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -30,15 +30,10 @@ public class RegistrationRestController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody CustomUserCreationDTO dto) {
 
-        System.out.println(">>> REGISTER ENDPOINT HIT <<<");
-        // Kolla om användarnamn redan finns (lägg till metoden i repo om den saknas)
+        // Enkel koll - vi kastar Exception istället för att returnera ResponseEntity manuellt
+        // Detta låter GlobalExceptionHandler ta hand om felet på ett enhetligt sätt
         if (customUserRepository.existsByUsername(dto.username())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "success", false,
-                            "error", "Username already taken"
-                    ));
+            throw new DataIntegrityViolationException("Username already taken");
         }
 
         CustomUser user = customUserMapper.toEntity(dto);

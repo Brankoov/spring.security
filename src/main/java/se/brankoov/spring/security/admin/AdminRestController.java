@@ -37,8 +37,19 @@ public class AdminRestController {
     }
 
     @GetMapping("/users")
-    public List<AdminUserDTO> getAllUsers() {
-        return userRepository.findAll().stream()
+    public List<AdminUserDTO> getAllUsers(@RequestParam(required = false) String search) {
+
+        List<CustomUser> users;
+
+        // Om sökterm finns och inte är tom -> Sök i DB
+        if (search != null && !search.trim().isEmpty()) {
+            users = userRepository.findByUsernameContainingIgnoreCase(search);
+        } else {
+            // Annars hämta alla
+            users = userRepository.findAll();
+        }
+
+        return users.stream()
                 .map(user -> new AdminUserDTO(
                         user.getId(),
                         user.getUsername(),
@@ -82,6 +93,27 @@ public class AdminRestController {
 
         userRepository.deleteById(id);
         return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
+    }
+    @PutMapping("/users/{id}/status")
+    public ResponseEntity<?> updateUserStatus(@PathVariable UUID id, @RequestParam boolean enabled, Authentication authentication) {
+        CustomUser userToUpdate = userRepository.findById(id).orElse(null);
+
+        if (userToUpdate == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // SÄKERHET: Admin får inte avaktivera sig själv (risk för utlåsning)
+        String currentUsername = authentication.getName();
+        if (userToUpdate.getUsername().equals(currentUsername)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "You cannot disable your own account!"));
+        }
+
+        // Uppdatera status
+        userToUpdate.setEnabled(enabled);
+        userRepository.save(userToUpdate);
+
+        return ResponseEntity.ok(Map.of("message", "User status updated", "enabled", enabled));
     }
 
     // Hjälpmetod för att göra om Todo till DTO (samma som i TodoController)
