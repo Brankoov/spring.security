@@ -16,6 +16,8 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: qwerty123
 
+      MAIL_PASSWORD: ${MY_EMAIL_PASSWORD}
+
   # --- DATABAS ---
   postgres:
     image: postgres:15-alpine

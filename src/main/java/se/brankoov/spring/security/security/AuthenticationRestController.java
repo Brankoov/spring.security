@@ -36,16 +36,13 @@ public class AuthenticationRestController {
         this.amqpTemplate = amqpTemplate;
     }
 
-    // TODO - Test against permissions
-    // TODO - Typed ResponseEntity (?)
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(
-            @RequestBody CustomUserLoginDTO customUserLoginDTO,     // TODO - Sanitizing Input
+            @RequestBody CustomUserLoginDTO customUserLoginDTO,
             HttpServletResponse response
     ) {
         logger.debug("Attempting authentication for user: {}", customUserLoginDTO.username());
 
-        // TODO - Status code for failure on authentication (for now we get 403)
         // Step 1: Perform authentication
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -59,52 +56,46 @@ public class AuthenticationRestController {
         System.out.println("Authenticated: " + authentication.isAuthenticated());
 
         Object principal = authentication.getPrincipal();
-        System.out.println("Principal type: " + principal.getClass().getSimpleName());
         if (principal instanceof CustomUserDetails userDetails) {
             System.out.println("  Username: " + userDetails.getUsername());
             System.out.println("  Authorities: " + userDetails.getAuthorities());
-            System.out.println("  Account Non Locked: " + userDetails.isAccountNonLocked());
-            System.out.println("  Account Enabled: " + userDetails.isEnabled());
-            System.out.println("  Password (hashed): " + userDetails.getPassword());
-        } else {
-            System.out.println("Principal value: " + principal);
         }
-
-        System.out.println("Credentials: " + authentication.getCredentials());
-        System.out.println("Details: " + authentication.getDetails());
-        System.out.println("Authorities: " + authentication.getAuthorities());
         System.out.println("=========================================\n");
 
         // Step 2: Extract your custom principal
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        // Step 3: Generate JWT using your domain model (now includes roles)
+        // Step 3: Generate JWT using your domain model
         String token = jwtUtils.generateJwtToken(customUserDetails.getCustomUser());
 
         // Step 4: Set cookie
         Cookie cookie = new Cookie("jwt", token);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true); // ✅ change to true in production (HTTPS only)
-        cookie.setAttribute("SameSite", "None"); // CSRF protection
+        cookie.setSecure(true);
+        cookie.setAttribute("SameSite", "None");
         cookie.setPath("/");
         cookie.setMaxAge(3600); // 1 hour
         response.addCookie(cookie);
 
         logger.info("Authentication successful for user: {}", customUserLoginDTO.username());
 
+        // --- RABBITMQ EMAIL LOGIC (UPDATED) ---
+        // Hämta den riktiga mailadressen från Entity-objektet
+        String userEmail = customUserDetails.getCustomUser().getEmail();
+
         EmailRequestDTO emailRequest = new EmailRequestDTO(
-                customUserLoginDTO.username(), // Vi låtsas att username är en email här
-                "Login Alert",
-                "Hej! Vi upptäckte en inloggning på ditt konto."
+                userEmail, // <--- SKICKAR TILL RIKTIG MAIL NU
+                "New Login Detected",
+                "Hi " + customUserLoginDTO.username() + "!\n\nWe detected a new login to your Todo App.\nIf this wasn't you, please contact admin."
         );
 
         amqpTemplate.convertAndSend(
                 RabbitConfig.EXCHANGE_NAME,
                 RabbitConfig.ROUTING_KEY,
-                emailRequest // Skickar DTO:n istället för sträng
+                emailRequest
         );
 
-        // Step 5: Return token - Optional
+        // Step 5: Return token
         return ResponseEntity.ok(Map.of(
                 "username", customUserLoginDTO.username(),
                 "authorities", customUserDetails.getAuthorities(),
@@ -114,14 +105,12 @@ public class AuthenticationRestController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
-
-        // Töm JWT-cookien genom att skriva över den
         Cookie cookie = new Cookie("jwt", "");
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);        // samma som i login
+        cookie.setSecure(true);
         cookie.setAttribute("SameSite", "None");
         cookie.setPath("/");
-        cookie.setMaxAge(0);           // 0 = ta bort direkt
+        cookie.setMaxAge(0);
         response.addCookie(cookie);
 
         logger.info("User logged out (JWT cookie cleared)");

@@ -18,6 +18,7 @@ public class CustomUserMapper {
 
         return new CustomUser(
                 customUserCreationDTO.username(),
+                customUserCreationDTO.email(),
                 customUserCreationDTO.password(),
                 customUserCreationDTO.isAccountNonExpired(),
                 customUserCreationDTO.isAccountNonLocked(),

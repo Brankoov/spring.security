@@ -34,8 +34,9 @@ public class Application {
 		);
 
 		CustomUser benny = new CustomUser(
-				"",
-				"",
+				"Benny",
+				"benny@test.com",
+				"asd123!",
 				true,
 				true,
 				true,

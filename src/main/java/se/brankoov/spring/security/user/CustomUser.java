@@ -35,6 +35,9 @@ public class CustomUser {
     @Size(min = 2, max = 20, message = "Username must be between 2-20 characters")
     private String username;
 
+    @Column(nullable = false, unique = true)
+    private String email;
+
     @Pattern(
             regexp = "^" +
                     "(?=.*[a-z])" + // at least one lowercase letter
@@ -59,8 +62,10 @@ public class CustomUser {
 
     // Constructors
     public CustomUser() {}
-    public CustomUser(String username, String password, boolean isAccountNonExpired, boolean isAccountNonLocked, boolean isCredentialsNonExpired, boolean isEnabled, Set<UserRole> roles) {
+
+    public CustomUser(String username, String email, String password, boolean isAccountNonExpired, boolean isAccountNonLocked, boolean isCredentialsNonExpired, boolean isEnabled, Set<UserRole> roles) {
         this.username = username;
+        this.email = email; // <--- HÄR
         this.password = password;
         this.isAccountNonExpired = isAccountNonExpired;
         this.isAccountNonLocked = isAccountNonLocked;
@@ -132,4 +137,7 @@ public class CustomUser {
     public void setRoles(Set<UserRole> roles) {
         this.roles = roles;
     }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 }

@@ -11,6 +11,10 @@ public record CustomUserCreationDTO(
         @NotBlank(message = "Username may not contain whitespace characters only")
         String username,
 
+        @Email(message = "Please provide a valid email address")
+        @NotBlank(message = "Email is required")
+        String email,
+
         @Pattern(
                 regexp = "^" +
                         "(?=.*[a-z])" +        // at least one lowercase letter
