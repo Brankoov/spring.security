@@ -20,6 +20,8 @@ public class Todo {
 
     private String description;
 
+    private boolean completed;
+
     private LocalDateTime createdDate; // När skapades den?
     private LocalDate dueDate;         // När ska den vara klar?
 
@@ -37,15 +39,21 @@ public class Todo {
         this.description = description;
         this.dueDate = dueDate;
         this.user = user;
-        this.createdDate = LocalDateTime.now(); // Sätts automatiskt nu
+        this.createdDate = LocalDateTime.now();
+        this.completed = false;
     }
 
     // Getters (Setters behövs oftast inte om vi inte ska redigera dem just nu)
+    public boolean isCompleted() { return completed; }
+    public void setCompleted(boolean completed) { this.completed = completed;  }
     public CustomUser getUser() { return user; }
     public UUID getId() { return id; }
     public String getTitle() { return title; }
     public String getDescription() { return description; }
     public LocalDateTime getCreatedDate() { return createdDate; }
     public LocalDate getDueDate() { return dueDate; }
+    public void setTitle(String title) { this.title = title; }
+    public void setDescription(String description) { this.description = description; }
+    public void setDueDate(LocalDate dueDate) { this.dueDate = dueDate; }
     // Vi behöver oftast inte exponera hela User-objektet här
 }

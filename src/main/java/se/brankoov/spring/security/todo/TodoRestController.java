@@ -55,6 +55,31 @@ public class TodoRestController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(mapToDTO(newTodo));
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateTodo(@PathVariable UUID id, @RequestBody TodoRequestDTO dto, Authentication authentication) {
+        CustomUser user = getLoggedInUser(authentication);
+
+        Todo todoToUpdate = todoRepository.findById(id).orElse(null);
+
+        if (todoToUpdate == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // SÄKERHET: Äger du den?
+        if (!todoToUpdate.getUser().getId().equals(user.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "You can only edit your own todos"));
+        }
+
+        // Uppdatera fälten
+        todoToUpdate.setTitle(dto.title());
+        todoToUpdate.setDescription(dto.description());
+        todoToUpdate.setDueDate(dto.dueDate());
+        todoToUpdate.setCompleted(dto.completed()); // Här sätter vi TRUE om den är klar
+
+        todoRepository.save(todoToUpdate);
+
+        return ResponseEntity.ok(mapToDTO(todoToUpdate));
+    }
 
     // --- 3. TA BORT EN TODO ---
     @DeleteMapping("/{id}")
@@ -87,13 +112,14 @@ public class TodoRestController {
     }
 
     // Hjälpmetod för att göra om Todo (Databas) -> DTO (JSON)
-    private TodoResponseDTO mapToDTO(Todo todo) {
+       private TodoResponseDTO mapToDTO(Todo todo) {
         return new TodoResponseDTO(
                 todo.getId(),
                 todo.getTitle(),
                 todo.getDescription(),
                 todo.getCreatedDate(),
-                todo.getDueDate()
+                todo.getDueDate(),
+                todo.isCompleted() // Skicka med status
         );
     }
 }

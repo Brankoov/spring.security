@@ -5,5 +5,6 @@ import java.time.LocalDate;
 public record TodoRequestDTO(
         String title,
         String description,
-        LocalDate dueDate // Format: "YYYY-MM-DD"
+        LocalDate dueDate,
+        boolean completed
 ) {}
